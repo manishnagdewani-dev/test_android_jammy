@@ -31,6 +31,7 @@ android:
 
 script:
   - echo "Running Script"
+  - echo "${TRAVIS_REPO_SLUG}/${TRAVIS_BRANCH}"
   - export PRODUCTION_PACKAGE=`if [ "$TRAVIS_TAG" = "" ]; then echo assembleMinApi22NgxDebug; else echo createProductionPackage; fi`
   - export UNITTEST_TARGET=`if [ "$TRAVIS_TAG" != "" -o "$TRAVIS_EVENT_TYPE" = "cron" ]; then echo ""; else echo ""; fi`
   - echo TRAVIS_TAG=$TRAVIS_TAG PRODUCTION_PACKAGE=$PRODUCTION_PACKAGE UNITTEST_TARGET=$UNITTEST_TARGET
@@ -63,9 +64,4 @@ deploy:
       branch: main  
  
 addons:
-  artifacts:
-    # ⋮
-    paths:
-    - $(git ls-files -o | tr "\n" ":")
-    - $(ls /var/log/*.log | tr "\n" ":")
-    - $HOME/some/other/thing.log
+  artifacts: true
