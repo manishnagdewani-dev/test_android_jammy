@@ -1,7 +1,6 @@
 language: android
 sudo: true
 dist: jammy
-
 os:
   - linux
 
