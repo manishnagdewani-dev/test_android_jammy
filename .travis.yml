@@ -1,0 +1,63 @@
+language: android
+sudo: true
+dist: jammy
+
+os:
+  - linux
+
+env:
+  global:
+    - ANDROID_HOME=$TRAVIS_BUILD_DIR/android-sdk
+    - PATH=$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH
+
+before_install:
+  - curl -s "https://get.sdkman.io" | bash
+  - source "$HOME/.sdkman/bin/sdkman-init.sh"
+  - sdk install java 17.0.2-open
+  - sdk use java 17.0.2-open
+
+android:
+  components:
+    - tools
+    - platform-tools
+    - tools
+    - build-tools-33.0.3
+    - android-33
+
+  licenses:
+    - android-sdk-preview-license-.+
+    - android-sdk-license-.+
+    - google-gdk-license-.+
+    - '.+'
+
+script:
+  - echo "Running Script"
+  - export PRODUCTION_PACKAGE=`if [ "$TRAVIS_TAG" = "" ]; then echo assembleMinApi22NgxDebug; else echo createProductionPackage; fi`
+  - export UNITTEST_TARGET=`if [ "$TRAVIS_TAG" != "" -o "$TRAVIS_EVENT_TYPE" = "cron" ]; then echo ""; else echo ""; fi`
+  - echo TRAVIS_TAG=$TRAVIS_TAG PRODUCTION_PACKAGE=$PRODUCTION_PACKAGE UNITTEST_TARGET=$UNITTEST_TARGET
+  - ./gradlew -Dorg.gradle.jvmargs=-Xmx4096m clean checkstyle $UNITTEST_TARGET $PRODUCTION_PACKAGE
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+cache:
+  directories:
+    - $HOME/.m2/
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+
+before_deploy:
+  - export RELEASE_PKG_FILE=$(ls app/build/distributions/*.zip)
+  - echo "deploying $RELEASE_PKG_FILE"
+
+deploy:
+  provider: releases
+  edge:
+    branch: v2.0.3-beta.4
+  file_glob: true
+  file: "${RELEASE_PKG_FILE}"
+  skip_cleanup: true
+ 
+addons:
+  artifacts: true
