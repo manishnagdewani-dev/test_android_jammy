@@ -35,7 +35,7 @@ script:
   - export PRODUCTION_PACKAGE=`if [ "$TRAVIS_TAG" = "" ]; then echo assembleMinApi22NgxDebug; else echo createProductionPackage; fi`
   - export UNITTEST_TARGET=`if [ "$TRAVIS_TAG" != "" -o "$TRAVIS_EVENT_TYPE" = "cron" ]; then echo ""; else echo ""; fi`
   - echo TRAVIS_TAG=$TRAVIS_TAG PRODUCTION_PACKAGE=$PRODUCTION_PACKAGE UNITTEST_TARGET=$UNITTEST_TARGET
-  - ./gradlew -Dorg.gradle.jvmargs=-Xmx4096m clean checkstyle $UNITTEST_TARGET $PRODUCTION_PACKAGE
+  - ./gradlew -Dorg.gradle.jvmargs="-Xmx6144m -XX:+HeapDumpOnOutOfMemoryError -XX:MaxMetaspaceSize=512m" clean checkstyle $UNITTEST_TARGET $PRODUCTION_PACKAGE
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
